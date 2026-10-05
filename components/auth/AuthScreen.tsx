@@ -16,6 +16,10 @@ const MESSAGES: Record<string, string> = {
   invalid_google_token: "Google could not verify that account.",
   server_error: "Something went wrong on our side. Try again.",
   bad_origin: "Request blocked for security. Reload and retry.",
+  account_disabled:
+    "This account has been disabled. Contact an administrator.",
+  email_not_configured: "Email reset isn’t set up yet.",
+  email_failed: "Could not send the reset email.",
 };
 
 export function AuthScreen({
@@ -98,8 +102,18 @@ export function AuthScreen({
           </label>
 
           <label className="block">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-sumi-soft">
-              Password
+            <span className="flex items-baseline justify-between">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-sumi-soft">
+                Password
+              </span>
+              {!isSignup ? (
+                <Link
+                  href="/forgot"
+                  className="font-mono text-[10px] text-ai underline underline-offset-4"
+                >
+                  Forgot?
+                </Link>
+              ) : null}
             </span>
             <input
               type="password"

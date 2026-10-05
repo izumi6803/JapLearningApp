@@ -15,6 +15,26 @@ export const publicGoogleClientId =
   process.env.GOOGLE_CLIENT_ID ??
   "";
 
+export const adminEmails = new Set(
+  (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+);
+
+export function isAdminEmail(email: string): boolean {
+  return adminEmails.has(email.trim().toLowerCase());
+}
+
+export const resendApiKey = process.env.RESEND_API_KEY ?? "";
+export const emailFrom = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+
+export const appUrl =
+  process.env.APP_URL ??
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
+
 const DEV_SECRET = "dev-insecure-secret-change-me-in-production";
 
 export function authSecret(): Uint8Array {

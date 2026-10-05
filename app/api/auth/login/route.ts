@@ -1,7 +1,11 @@
-import { SESSION_COOKIE } from "@/lib/auth/config";
+import { SESSION_COOKIE, isAdminEmail } from "@/lib/auth/config";
 import { json, sameOrigin } from "@/lib/auth/http";
 import { verifyPassword } from "@/lib/auth/password";
-import { findUserByEmail, toPublicUser } from "@/lib/auth/repository";
+import {
+  findUserByEmail,
+  setUserRole,
+  toPublicUser,
+} from "@/lib/auth/repository";
 import { createSessionToken, sessionCookieOptions } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
@@ -29,6 +33,14 @@ export async function POST(request: Request) {
 
     const ok = await verifyPassword(password, user.passwordHash);
     if (!ok) return json({ error: "invalid_credentials" }, 401);
+
+    if (user.status === "disabled") {
+      return json({ error: "account_disabled" }, 403);
+    }
+    if (isAdminEmail(user.email) && user.role !== "admin") {
+      await setUserRole(user.id, "admin");
+      user.role = "admin";
+    }
 
     const publicUser = toPublicUser(user);
     const token = await createSessionToken(publicUser);

@@ -1,13 +1,14 @@
+import { currentUser } from "@/lib/auth/guard";
 import { json } from "@/lib/auth/http";
-import { getCurrentUser } from "@/lib/auth/session";
+import { toPublicUser } from "@/lib/auth/repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const user = await getCurrentUser();
-    return json({ user });
+    const user = await currentUser();
+    return json({ user: user ? toPublicUser(user) : null });
   } catch {
     return json({ user: null });
   }

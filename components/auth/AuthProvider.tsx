@@ -16,6 +16,8 @@ export interface AuthUser {
   name: string | null;
   image: string | null;
   provider: "credentials" | "google";
+  role: "student" | "admin";
+  hasPassword?: boolean;
 }
 
 interface AuthContextValue {

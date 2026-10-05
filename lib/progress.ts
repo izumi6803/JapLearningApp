@@ -1,35 +1,14 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { EMPTY_PROGRESS, type ProgressState } from "./progress-types";
+
+export type { CardState, ProgressState, QuizResult } from "./progress-types";
+export { mergeProgress } from "./progress-types";
 
 const KEY = "nihongo.progress.v1";
 
-export interface CardState {
-  box: number;
-  seen: number;
-  lapses: number;
-  due: number;
-}
-
-export interface QuizResult {
-  best: number;
-  total: number;
-  attempts: number;
-}
-
-export interface ProgressState {
-  completed: string[];
-  cards: Record<string, CardState>;
-  quizzes: Record<string, QuizResult>;
-  updatedAt: number;
-}
-
-const SERVER_SNAPSHOT: ProgressState = {
-  completed: [],
-  cards: {},
-  quizzes: {},
-  updatedAt: 0,
-};
+const SERVER_SNAPSHOT: ProgressState = EMPTY_PROGRESS;
 
 let state: ProgressState = SERVER_SNAPSHOT;
 let loaded = false;
@@ -39,12 +18,13 @@ function read(): ProgressState {
   if (typeof window === "undefined") return SERVER_SNAPSHOT;
   try {
     const raw = window.localStorage.getItem(KEY);
-    const parsed = raw ? (JSON.parse(raw) as Partial<ProgressState>) : null;
+    if (!raw) return { completed: [], cards: {}, quizzes: {}, updatedAt: 0 };
+    const parsed = JSON.parse(raw) as Partial<ProgressState>;
     return {
-      completed: parsed?.completed ?? [],
-      cards: parsed?.cards ?? {},
-      quizzes: parsed?.quizzes ?? {},
-      updatedAt: parsed?.updatedAt ?? 0,
+      completed: parsed.completed ?? [],
+      cards: parsed.cards ?? {},
+      quizzes: parsed.quizzes ?? {},
+      updatedAt: parsed.updatedAt ?? 0,
     };
   } catch {
     return { completed: [], cards: {}, quizzes: {}, updatedAt: 0 };
@@ -81,6 +61,21 @@ function getSnapshot(): ProgressState {
 
 function getServerSnapshot(): ProgressState {
   return SERVER_SNAPSHOT;
+}
+
+/** Imperative accessors used by the sync layer. */
+export function getProgress(): ProgressState {
+  ensureLoaded();
+  return state;
+}
+
+export function setProgress(next: ProgressState): void {
+  loaded = true;
+  commit(next);
+}
+
+export function subscribeProgress(listener: () => void): () => void {
+  return subscribe(listener);
 }
 
 export function useProgress() {

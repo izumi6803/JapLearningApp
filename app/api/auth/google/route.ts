@@ -1,4 +1,4 @@
-import { SESSION_COOKIE } from "@/lib/auth/config";
+import { SESSION_COOKIE, isAdminEmail } from "@/lib/auth/config";
 import { verifyGoogleCredential } from "@/lib/auth/google";
 import { json, sameOrigin } from "@/lib/auth/http";
 import {
@@ -6,6 +6,7 @@ import {
   findUserByEmail,
   findUserByGoogleSub,
   linkGoogleAccount,
+  setUserRole,
   toPublicUser,
   touchLogin,
   type User,
@@ -55,6 +56,14 @@ export async function POST(request: Request) {
       }
     } else {
       await touchLogin(user.id);
+    }
+
+    if (user.status === "disabled") {
+      return json({ error: "account_disabled" }, 403);
+    }
+    if (isAdminEmail(user.email) && user.role !== "admin") {
+      await setUserRole(user.id, "admin");
+      user.role = "admin";
     }
 
     const publicUser = toPublicUser(user);

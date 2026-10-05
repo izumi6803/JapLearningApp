@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ProgressSync } from "@/components/ProgressSync";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col">
         <AuthProvider>
+          <ProgressSync />
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <SiteFooter />

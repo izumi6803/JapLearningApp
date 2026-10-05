@@ -101,19 +101,34 @@ export function AccountMenu() {
               <p className="truncate font-mono text-[11px] text-sumi-soft">
                 {user.email}
               </p>
-              {user.provider === "google" ? (
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ai">
-                  via Google
-                </p>
-              ) : null}
+              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ai">
+                {user.role === "admin" ? "Admin" : "Student"}
+                {user.provider === "google" ? " · via Google" : ""}
+              </p>
             </div>
+            <Link
+              href="/account"
+              onClick={() => setOpen(false)}
+              className="mt-1 block w-full px-3 py-2 text-left text-sm text-sumi transition-colors hover:bg-washi"
+            >
+              My account
+            </Link>
+            {user.role === "admin" ? (
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                className="block w-full px-3 py-2 text-left text-sm text-sumi transition-colors hover:bg-washi"
+              >
+                Admin console
+              </Link>
+            ) : null}
             <button
               type="button"
               onClick={() => {
                 setOpen(false);
                 void signOut();
               }}
-              className="mt-1 w-full px-3 py-2 text-left text-sm text-sumi transition-colors hover:bg-washi"
+              className="mt-1 w-full border-t border-line px-3 py-2 text-left text-sm text-sumi transition-colors hover:bg-washi"
             >
               Sign out
             </button>

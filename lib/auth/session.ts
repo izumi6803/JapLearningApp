@@ -16,6 +16,7 @@ export async function createSessionToken(user: PublicUser): Promise<string> {
     name: user.name,
     image: user.image,
     provider: user.provider,
+    role: user.role,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
@@ -36,6 +37,8 @@ export async function verifySessionToken(
       name: typeof payload.name === "string" ? payload.name : null,
       image: typeof payload.image === "string" ? payload.image : null,
       provider: payload.provider === "google" ? "google" : "credentials",
+      role: payload.role === "admin" ? "admin" : "student",
+      hasPassword: false,
     };
   } catch {
     return null;
