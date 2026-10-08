@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { isAdminEmail } from "./config";
 import { findUserById, setUserRole, type User } from "./repository";
 import { getCurrentUser } from "./session";
@@ -22,4 +23,13 @@ export async function currentUser(): Promise<User | null> {
 export async function requireAdmin(): Promise<User | null> {
   const user = await currentUser();
   return user && user.role === "admin" ? user : null;
+}
+
+/**
+ * Student-facing pages call this so administrators stay in the console
+ * instead of seeing the learning experience.
+ */
+export async function redirectAdminToConsole(): Promise<void> {
+  const user = await currentUser();
+  if (user?.role === "admin") redirect("/admin");
 }

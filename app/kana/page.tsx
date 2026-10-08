@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { KanaWorkspace } from "@/components/KanaWorkspace";
 import type { KanaScript } from "@/data/kana";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 
 export const metadata: Metadata = {
   title: "Hiragana & Katakana",
@@ -13,6 +14,7 @@ export default async function KanaPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await redirectAdminToConsole();
   const sp = await searchParams;
   const raw = Array.isArray(sp.script) ? sp.script[0] : sp.script;
   const initialScript: KanaScript =

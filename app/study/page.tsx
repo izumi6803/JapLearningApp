@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { StudyWorkspace } from "@/components/StudyWorkspace";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default async function StudyPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await redirectAdminToConsole();
   const sp = await searchParams;
   const initialLessonId = Array.isArray(sp.lesson) ? sp.lesson[0] : sp.lesson;
   const initialMode = pick<Mode>(sp.mode, ["flashcards", "kanji", "quiz"]);

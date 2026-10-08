@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LessonTabs } from "@/components/LessonTabs";
 import { LevelBadge } from "@/components/LevelBadge";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 import { neighboursOf, type Vocab } from "@/lib/types";
 
@@ -28,6 +29,7 @@ export default async function LessonPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await redirectAdminToConsole();
   const { id } = await params;
   const lessons = await getLessons();
   const lesson = lessons.find((l) => l.id === id);

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ResetForm } from "@/components/auth/ResetForm";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function ResetPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await redirectAdminToConsole();
   const sp = await searchParams;
   const token = Array.isArray(sp.token) ? sp.token[0] : sp.token;
 

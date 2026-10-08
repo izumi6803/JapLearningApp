@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AuthScreen } from "@/components/auth/AuthScreen";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 
 export const metadata: Metadata = {
   title: "Create account",
@@ -11,6 +12,7 @@ export default async function SignUpPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await redirectAdminToConsole();
   const sp = await searchParams;
   const next = Array.isArray(sp.next) ? sp.next[0] : sp.next;
   return (

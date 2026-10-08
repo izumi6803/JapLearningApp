@@ -6,11 +6,13 @@ import { TodayPlan } from "@/components/dashboard/TodayPlan";
 import { LessonCard } from "@/components/LessonCard";
 import { LevelLadder } from "@/components/LevelLadder";
 import { TodayStrip } from "@/components/TodayStrip";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  await redirectAdminToConsole();
   const lessons = await getLessons();
   const startLessons = lessons.slice(0, 4);
 

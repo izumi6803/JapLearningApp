@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Roadmap } from "@/components/Roadmap";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RoadmapPage() {
+  await redirectAdminToConsole();
   const lessons = await getLessons();
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">

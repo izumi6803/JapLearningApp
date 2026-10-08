@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { ForgotForm } from "@/components/auth/ForgotForm";
+import { redirectAdminToConsole } from "@/lib/auth/guard";
 
 export const metadata: Metadata = {
   title: "Forgot password",
   description: "Reset your Minna no Nihongo password.",
 };
 
-export default function ForgotPage() {
+export default async function ForgotPage() {
+  await redirectAdminToConsole();
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
       <div className="mx-auto w-full max-w-md">
