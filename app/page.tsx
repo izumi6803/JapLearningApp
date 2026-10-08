@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { AdvisorCard } from "@/components/AdvisorCard";
 import { ContinueStudying } from "@/components/ContinueStudying";
 import { Hanko } from "@/components/Hanko";
 import { LevelLadder } from "@/components/LevelLadder";
+import { TodayStrip } from "@/components/TodayStrip";
 import { totals } from "@/data";
 
 const HERO_KANA = ["は", "じ", "め", "ま", "し", "て"];
@@ -138,26 +140,27 @@ export default function Home() {
 
       {/* ---- continue + ladder ---- */}
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <div className="grid gap-10 lg:grid-cols-[20rem_1fr] lg:gap-14">
-          <div>
-            <h2 className="font-display text-sm font-semibold uppercase tracking-[0.2em] text-sumi-soft">
-              Pick up where you left off
-            </h2>
-            <div className="mt-4">
-              <ContinueStudying />
-            </div>
-          </div>
+        <TodayStrip />
 
+        <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_22rem] lg:gap-14">
           <div>
-            <div className="mb-4 flex items-end justify-between">
+            <div className="mb-4 flex items-end justify-between gap-3">
               <h2 className="font-display text-2xl font-semibold text-sumi">
                 The five levels
               </h2>
-              <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-sumi-soft">
-                初級 → 上級
-              </span>
+              <Link
+                href="/roadmap"
+                className="font-mono text-[10px] uppercase tracking-[0.24em] text-ai transition-colors hover:text-shu"
+              >
+                Full roadmap →
+              </Link>
             </div>
             <LevelLadder />
+          </div>
+
+          <div className="space-y-6">
+            <AdvisorCard />
+            <ContinueStudying />
           </div>
         </div>
       </section>

@@ -29,6 +29,13 @@ export function isAdminEmail(email: string): boolean {
 export const resendApiKey = process.env.RESEND_API_KEY ?? "";
 export const emailFrom = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
 
+export const openaiApiKey = process.env.OPENAI_API_KEY ?? "";
+export const openaiBaseUrl =
+  process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1";
+export const openaiModel = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+
+export const cronSecret = process.env.CRON_SECRET ?? "";
+
 export const appUrl =
   process.env.APP_URL ??
   (process.env.VERCEL_URL

@@ -7,6 +7,8 @@ import { AccountMenu } from "./auth/AccountMenu";
 const NAV = [
   { href: "/kana", label: "Kana", kana: "かな" },
   { href: "/lessons", label: "Lessons", kana: "課" },
+  { href: "/review", label: "Review", kana: "復習" },
+  { href: "/roadmap", label: "Roadmap", kana: "計画" },
   { href: "/study", label: "Study", kana: "練習" },
   { href: "/progress", label: "Progress", kana: "進捗" },
 ] as const;
@@ -36,7 +38,7 @@ export function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-3">
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-1 overflow-x-auto">
             {NAV.map((item) => {
               const active =
                 pathname === item.href || pathname.startsWith(`${item.href}/`);

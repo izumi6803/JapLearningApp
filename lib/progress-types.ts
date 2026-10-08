@@ -15,6 +15,8 @@ export interface ProgressState {
   completed: string[];
   cards: Record<string, CardState>;
   quizzes: Record<string, QuizResult>;
+  /** Local calendar days (YYYY-MM-DD) on which the student studied. */
+  activity: string[];
   updatedAt: number;
 }
 
@@ -22,8 +24,23 @@ export const EMPTY_PROGRESS: ProgressState = {
   completed: [],
   cards: {},
   quizzes: {},
+  activity: [],
   updatedAt: 0,
 };
+
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function todayKey(date = new Date()): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+export function addStudyDay(activity: string[], day: string): string[] {
+  if (activity.includes(day)) return activity;
+  return [...activity, day].sort().slice(-400);
+}
 
 function num(value: unknown, fallback = 0): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
@@ -64,7 +81,19 @@ export function sanitizeProgress(input: unknown): ProgressState {
     }
   }
 
-  return { completed, cards, quizzes, updatedAt: num(raw.updatedAt) };
+  const activity = Array.isArray(raw.activity)
+    ? Array.from(
+        new Set(
+          raw.activity.filter(
+            (d): d is string => typeof d === "string" && DAY_RE.test(d),
+          ),
+        ),
+      )
+        .sort()
+        .slice(-400)
+    : [];
+
+  return { completed, cards, quizzes, activity, updatedAt: num(raw.updatedAt) };
 }
 
 export function mergeProgress(a: ProgressState, b: ProgressState): ProgressState {
@@ -99,10 +128,15 @@ export function mergeProgress(a: ProgressState, b: ProgressState): ProgressState
       };
   }
 
+  const activity = Array.from(new Set([...a.activity, ...b.activity]))
+    .sort()
+    .slice(-400);
+
   return {
     completed,
     cards,
     quizzes,
+    activity,
     updatedAt: Math.max(a.updatedAt, b.updatedAt),
   };
 }

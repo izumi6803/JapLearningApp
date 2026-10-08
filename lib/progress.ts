@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import { EMPTY_PROGRESS, type ProgressState } from "./progress-types";
+import {
+  addStudyDay,
+  EMPTY_PROGRESS,
+  todayKey,
+  type ProgressState,
+} from "./progress-types";
 
 export type { CardState, ProgressState, QuizResult } from "./progress-types";
 export { mergeProgress } from "./progress-types";
@@ -18,16 +23,17 @@ function read(): ProgressState {
   if (typeof window === "undefined") return SERVER_SNAPSHOT;
   try {
     const raw = window.localStorage.getItem(KEY);
-    if (!raw) return { completed: [], cards: {}, quizzes: {}, updatedAt: 0 };
+    if (!raw) return { ...EMPTY_PROGRESS };
     const parsed = JSON.parse(raw) as Partial<ProgressState>;
     return {
       completed: parsed.completed ?? [],
       cards: parsed.cards ?? {},
       quizzes: parsed.quizzes ?? {},
+      activity: parsed.activity ?? [],
       updatedAt: parsed.updatedAt ?? 0,
     };
   } catch {
-    return { completed: [], cards: {}, quizzes: {}, updatedAt: 0 };
+    return { ...EMPTY_PROGRESS };
   }
 }
 
@@ -84,7 +90,11 @@ export function useProgress() {
 
   const completeLesson = useCallback((lessonId: string) => {
     if (state.completed.includes(lessonId)) return;
-    commit({ ...state, completed: [...state.completed, lessonId] });
+    commit({
+      ...state,
+      completed: [...state.completed, lessonId],
+      activity: addStudyDay(state.activity, todayKey()),
+    });
   }, []);
 
   const recordCard = useCallback((cardId: string, correct: boolean) => {
@@ -109,6 +119,7 @@ export function useProgress() {
           due: Date.now() + intervalsMs[box],
         },
       },
+      activity: addStudyDay(state.activity, todayKey()),
     });
   }, []);
 
@@ -124,11 +135,18 @@ export function useProgress() {
           attempts: (prev?.attempts ?? 0) + 1,
         },
       },
+      activity: addStudyDay(state.activity, todayKey()),
     });
   }, []);
 
   const reset = useCallback(() => {
-    commit({ completed: [], cards: {}, quizzes: {}, updatedAt: Date.now() });
+    commit({
+      completed: [],
+      cards: {},
+      quizzes: {},
+      activity: [],
+      updatedAt: Date.now(),
+    });
   }, []);
 
   return {
