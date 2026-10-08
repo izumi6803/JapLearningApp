@@ -3,6 +3,7 @@ import { digestEmailHtml, emailConfigured, sendEmail } from "@/lib/auth/email";
 import { json } from "@/lib/auth/http";
 import { getProgress, listUsers } from "@/lib/auth/repository";
 import { buildSnapshot } from "@/lib/insights";
+import { getLessons } from "@/lib/lessons/repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,7 +17,10 @@ export async function GET(request: Request) {
     return json({ error: "email_not_configured" }, 503);
   }
 
-  const { users } = await listUsers({ limit: 500 });
+  const [{ users }, lessons] = await Promise.all([
+    listUsers({ limit: 500 }),
+    getLessons(),
+  ]);
   let candidates = 0;
   let sent = 0;
 
@@ -25,7 +29,7 @@ export async function GET(request: Request) {
     const progress = await getProgress(user.id);
     if (!progress) continue;
 
-    const snapshot = buildSnapshot(progress);
+    const snapshot = buildSnapshot(progress, lessons);
     const streakAtRisk =
       !snapshot.streak.studiedToday && snapshot.streak.current > 0;
     if (snapshot.dueForReview === 0 && !streakAtRisk) continue;

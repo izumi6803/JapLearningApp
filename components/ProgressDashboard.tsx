@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { lessons, lessonsByLevel } from "@/data";
 import { useProgress } from "@/lib/progress";
-import { LEVELS, levelColor } from "@/lib/types";
+import { LEVELS, lessonsOf, levelColor, type Lesson } from "@/lib/types";
 import { Hanko } from "./Hanko";
 import { ProgressBar } from "./ProgressBar";
 
-export function ProgressDashboard() {
+export function ProgressDashboard({ lessons }: { lessons: Lesson[] }) {
   const { ready, state, reset } = useProgress();
 
   const totalLessons = lessons.length;
@@ -79,7 +78,7 @@ export function ProgressDashboard() {
         </h2>
         <ul className="space-y-5">
           {LEVELS.map((meta) => {
-            const group = lessonsByLevel(meta.level);
+            const group = lessonsOf(lessons, meta.level);
             const ldone = ready
               ? group.filter((l) => state.completed.includes(l.id)).length
               : 0;

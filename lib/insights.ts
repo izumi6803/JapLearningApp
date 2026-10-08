@@ -1,5 +1,4 @@
-import { lessons, lessonsByLevel } from "@/data";
-import { LEVELS, type Level } from "./types";
+import { LEVELS, lessonsOf, sortLessons, type Lesson, type Level } from "./types";
 import type { ProgressState } from "./progress-types";
 import { countDue, weakVocab } from "./review";
 import { computeStreak } from "./streak";
@@ -15,10 +14,14 @@ export interface StudySnapshot {
   lastStudied: string | null;
 }
 
-export function buildSnapshot(state: ProgressState): StudySnapshot {
+export function buildSnapshot(
+  state: ProgressState,
+  lessons: Lesson[],
+): StudySnapshot {
+  const ordered = sortLessons(lessons);
   const streak = computeStreak(state.activity);
   const completed = new Set(state.completed);
-  const next = lessons.find((l) => !completed.has(l.id)) ?? null;
+  const next = ordered.find((l) => !completed.has(l.id)) ?? null;
 
   return {
     streak: {
@@ -27,9 +30,9 @@ export function buildSnapshot(state: ProgressState): StudySnapshot {
       studiedToday: streak.studiedToday,
     },
     dueForReview: countDue(state),
-    weakCount: weakVocab(state).length,
+    weakCount: weakVocab(state, ordered).length,
     completedLessons: state.completed.length,
-    totalLessons: lessons.length,
+    totalLessons: ordered.length,
     nextLesson: next
       ? {
           id: next.id,
@@ -39,7 +42,7 @@ export function buildSnapshot(state: ProgressState): StudySnapshot {
         }
       : null,
     levelProgress: LEVELS.map((meta) => {
-      const group = lessonsByLevel(meta.level);
+      const group = lessonsOf(ordered, meta.level);
       return {
         level: meta.level,
         done: group.filter((l) => completed.has(l.id)).length,

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { ReviewSession } from "@/components/ReviewSession";
+import { getLessons } from "@/lib/lessons/repository";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Review",
@@ -7,7 +10,8 @@ export const metadata: Metadata = {
     "Clear the vocabulary and kanji from older lessons that are due for spaced review.",
 };
 
-export default function ReviewPage() {
+export default async function ReviewPage() {
+  const lessons = await getLessons();
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <header className="mb-8">
@@ -23,7 +27,7 @@ export default function ReviewPage() {
         </p>
       </header>
 
-      <ReviewSession />
+      <ReviewSession lessons={lessons} />
     </div>
   );
 }

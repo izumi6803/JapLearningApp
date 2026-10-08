@@ -1,24 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { lessonsByLevel, levelCounts } from "@/data";
 import { useProgress } from "@/lib/progress";
-import { LEVELS, levelColor } from "@/lib/types";
+import {
+  countsByLevel,
+  LEVELS,
+  lessonsOf,
+  levelColor,
+  type Lesson,
+} from "@/lib/types";
 import { LevelBadge } from "./LevelBadge";
 import { ProgressBar } from "./ProgressBar";
 
-export function LevelLadder() {
+export function LevelLadder({ lessons }: { lessons: Lesson[] }) {
   const { ready, state } = useProgress();
   const completed = new Set(state.completed);
+  const counts = countsByLevel(lessons);
 
   return (
     <ol className="divide-y divide-line border-y border-line">
       {LEVELS.map((meta) => {
-        const levelLessons = lessonsByLevel(meta.level);
+        const levelLessons = lessonsOf(lessons, meta.level);
         const done = ready
           ? levelLessons.filter((l) => completed.has(l.id)).length
           : 0;
-        const total = levelCounts[meta.level];
+        const total = counts[meta.level];
         const pct = total ? (done / total) * 100 : 0;
 
         return (

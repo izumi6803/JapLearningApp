@@ -1,5 +1,3 @@
-import { totals } from "@/data";
-
 export function SiteFooter() {
   return (
     <footer className="mt-20 border-t border-line">
@@ -13,7 +11,7 @@ export function SiteFooter() {
           </p>
         </div>
         <p className="font-mono text-[11px] tracking-wider text-sumi-soft">
-          {totals.lessons} units · {totals.vocab} words · {totals.kanji} kanji
+          Kana · Vocabulary · Grammar · Kanji · JLPT N5–N1
         </p>
       </div>
     </footer>

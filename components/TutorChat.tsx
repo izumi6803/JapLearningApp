@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { lessons } from "@/data";
+import type { Lesson } from "@/lib/types";
 import { useAuth } from "./auth/AuthProvider";
 import { MicButton } from "./voice/MicButton";
 
@@ -18,7 +18,7 @@ const SUGGESTIONS = [
   "Give me 5 example sentences with ～ながら",
 ];
 
-export function TutorChat() {
+export function TutorChat({ lessons }: { lessons: Lesson[] }) {
   const { user, loading } = useAuth();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");

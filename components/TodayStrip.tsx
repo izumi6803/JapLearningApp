@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { lessons } from "@/data";
 import { useProgress } from "@/lib/progress";
 import { countDue } from "@/lib/review";
 import { computeStreak } from "@/lib/streak";
+import type { Lesson } from "@/lib/types";
 
-export function TodayStrip() {
+export function TodayStrip({ lessons }: { lessons: Lesson[] }) {
   const { ready, state, isLessonComplete } = useProgress();
 
   if (!ready) {

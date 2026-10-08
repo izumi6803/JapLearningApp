@@ -2,6 +2,7 @@ import { currentUser } from "@/lib/auth/guard";
 import { openaiApiKey, openaiBaseUrl, openaiModel } from "@/lib/auth/config";
 import { json, sameOrigin } from "@/lib/auth/http";
 import { buildSnapshot, ruleAdvice } from "@/lib/insights";
+import { getLessons } from "@/lib/lessons/repository";
 import { sanitizeProgress } from "@/lib/progress-types";
 
 export const runtime = "nodejs";
@@ -21,7 +22,8 @@ export async function POST(request: Request) {
     return json({ error: "invalid_request" }, 400);
   }
 
-  const snapshot = buildSnapshot(sanitizeProgress(body.progress));
+  const lessons = await getLessons();
+  const snapshot = buildSnapshot(sanitizeProgress(body.progress), lessons);
 
   if (!openaiApiKey) {
     return json({ advice: ruleAdvice(snapshot), source: "rules", snapshot });

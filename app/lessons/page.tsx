@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LessonCard } from "@/components/LessonCard";
 import { LevelBadge } from "@/components/LevelBadge";
-import { lessons, lessonsByLevel } from "@/data";
-import { LEVELS, LEVEL_ORDER, levelColor, type Level } from "@/lib/types";
+import { getLessons } from "@/lib/lessons/repository";
+import { LEVELS, LEVEL_ORDER, lessonsOf, levelColor, type Level } from "@/lib/types";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Lessons",
@@ -22,7 +24,8 @@ export default async function LessonsPage({
 }) {
   const sp = await searchParams;
   const active = asLevel(sp.level);
-  const shown = active ? lessonsByLevel(active) : lessons;
+  const lessons = await getLessons();
+  const shown = active ? lessonsOf(lessons, active) : lessons;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
@@ -93,7 +96,7 @@ export default async function LessonsPage({
       ) : (
         <div className="mt-10 space-y-12">
           {LEVEL_ORDER.map((level) => {
-            const group = lessonsByLevel(level);
+            const group = lessonsOf(lessons, level);
             if (!group.length) return null;
             return (
               <section key={level}>

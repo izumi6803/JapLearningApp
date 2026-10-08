@@ -43,9 +43,16 @@ export function AuthScreen({
     setError(null);
     setBusy(true);
     try {
-      if (isSignup) await signUp(name, email, password);
-      else await signIn(email, password);
-      window.location.assign(next && next.startsWith("/") ? next : "/");
+      const authed = isSignup
+        ? await signUp(name, email, password)
+        : await signIn(email, password);
+      const dest =
+        next && next.startsWith("/")
+          ? next
+          : authed.role === "admin"
+            ? "/admin"
+            : "/";
+      window.location.assign(dest);
     } catch (err) {
       const code = err instanceof Error ? err.message : "";
       setError(MESSAGES[code] ?? "Something went wrong. Please try again.");

@@ -6,22 +6,25 @@ import { TodayPlan } from "@/components/dashboard/TodayPlan";
 import { LessonCard } from "@/components/LessonCard";
 import { LevelLadder } from "@/components/LevelLadder";
 import { TodayStrip } from "@/components/TodayStrip";
-import { lessons } from "@/data";
+import { getLessons } from "@/lib/lessons/repository";
 
-const START_LESSONS = lessons.slice(0, 4);
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  const lessons = await getLessons();
+  const startLessons = lessons.slice(0, 4);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <DashboardGreeting />
 
       <div className="mt-6">
-        <TodayStrip />
+        <TodayStrip lessons={lessons} />
       </div>
 
       <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_22rem] lg:gap-14">
         <div className="space-y-12">
-          <TodayPlan />
+          <TodayPlan lessons={lessons} />
 
           <section>
             <h2 className="mb-4 font-display text-2xl font-semibold text-sumi">
@@ -42,7 +45,7 @@ export default function Home() {
                 Full roadmap →
               </Link>
             </div>
-            <LevelLadder />
+            <LevelLadder lessons={lessons} />
           </section>
 
           <section>
@@ -58,7 +61,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="grid gap-2.5">
-              {START_LESSONS.map((lesson) => (
+              {startLessons.map((lesson) => (
                 <LessonCard key={lesson.id} lesson={lesson} />
               ))}
             </div>

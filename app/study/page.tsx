@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { StudyWorkspace } from "@/components/StudyWorkspace";
+import { getLessons } from "@/lib/lessons/repository";
 
 export const metadata: Metadata = {
   title: "Study",
@@ -22,6 +23,7 @@ export default async function StudyPage({
   const sp = await searchParams;
   const initialLessonId = Array.isArray(sp.lesson) ? sp.lesson[0] : sp.lesson;
   const initialMode = pick<Mode>(sp.mode, ["flashcards", "kanji", "quiz"]);
+  const lessons = await getLessons();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
@@ -39,6 +41,7 @@ export default async function StudyPage({
       </header>
 
       <StudyWorkspace
+        lessons={lessons}
         initialLessonId={initialLessonId}
         initialMode={initialMode}
       />

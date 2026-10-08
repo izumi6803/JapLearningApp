@@ -39,8 +39,14 @@ export function GoogleSignInButton({ next }: { next?: string }) {
       client_id: CLIENT_ID,
       callback: (response) => {
         signInWithGoogle(response.credential)
-          .then(() => {
-            window.location.assign(next && next.startsWith("/") ? next : "/");
+          .then((authed) => {
+            const dest =
+              next && next.startsWith("/")
+                ? next
+                : authed.role === "admin"
+                  ? "/admin"
+                  : "/";
+            window.location.assign(dest);
           })
           .catch((err: Error) => setError(err.message));
       },

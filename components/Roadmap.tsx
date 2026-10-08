@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { lessons } from "@/data";
 import { useProgress } from "@/lib/progress";
 import { levelColor, type Lesson } from "@/lib/types";
 import { Hanko } from "./Hanko";
@@ -69,7 +68,7 @@ function Node({ lesson, status }: { lesson: Lesson; status: string }) {
   );
 }
 
-export function Roadmap() {
+export function Roadmap({ lessons }: { lessons: Lesson[] }) {
   const { ready, isLessonComplete } = useProgress();
   const currentIndex = ready
     ? lessons.findIndex((l) => !isLessonComplete(l.id))

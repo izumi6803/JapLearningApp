@@ -1,8 +1,8 @@
-import { getLesson } from "@/data";
 import { getScenario } from "@/data/scenarios";
 import { openaiApiKey, openaiBaseUrl, openaiModel } from "@/lib/auth/config";
 import { currentUser } from "@/lib/auth/guard";
 import { json, sameOrigin } from "@/lib/auth/http";
+import { getLesson } from "@/lib/lessons/repository";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,8 +18,9 @@ interface ChatMessage {
   content: string;
 }
 
-function lessonContext(lessonId: string): string {
-  const lesson = getLesson(lessonId);
+async function lessonContext(lessonId: string): Promise<string> {
+  if (!lessonId) return "";
+  const lesson = await getLesson(lessonId);
   if (!lesson) return "";
   const vocab = lesson.vocab
     .slice(0, 40)
@@ -31,11 +32,11 @@ function lessonContext(lessonId: string): string {
   return `\n\nContext — the student is on ${lesson.source}: Lesson ${lesson.number}「${lesson.title}」.\nVocabulary: ${vocab}\nGrammar points: ${grammar}`;
 }
 
-function buildSystem(
+async function buildSystem(
   mode: "tutor" | "conversation",
   lessonId: string,
   scenarioId: string,
-): string {
+): Promise<string> {
   if (mode === "conversation") {
     const scenario = getScenario(scenarioId) ?? getScenario("freetalk")!;
     return `You are roleplaying this scene: ${scenario.setting}. Keep the scene alive with the student, who is around JLPT ${scenario.level}. Speak ONLY natural Japanese, 1–2 short sentences per turn, and end most turns with a question. Stay strictly in character and never break the scene.
@@ -46,7 +47,8 @@ EN: <an English translation>
 FIX: <one short correction of the student's last message, or "none">`;
   }
 
-  return `You are 先生, a patient and encouraging Japanese tutor helping a student work through the Minna no Nihongo series toward the JLPT. Answer their questions, explain grammar clearly, and give short example sentences. For any Japanese you write, follow it with the kana reading in parentheses and a brief English gloss. Match the student's level, keep replies under 160 words, and use plain text (no markdown headings).${lessonContext(lessonId)}`;
+  const context = await lessonContext(lessonId);
+  return `You are 先生, a patient and encouraging Japanese tutor helping a student work through the Minna no Nihongo series toward the JLPT. Answer their questions, explain grammar clearly, and give short example sentences. For any Japanese you write, follow it with the kana reading in parentheses and a brief English gloss. Match the student's level, keep replies under 160 words, and use plain text (no markdown headings).${context}`;
 }
 
 interface ParsedReply {
@@ -128,7 +130,10 @@ export async function POST(request: Request) {
         temperature: 0.7,
         max_tokens: 800,
         messages: [
-          { role: "system", content: buildSystem(mode, lessonId, scenarioId) },
+          {
+            role: "system",
+            content: await buildSystem(mode, lessonId, scenarioId),
+          },
           ...messages,
         ],
       }),

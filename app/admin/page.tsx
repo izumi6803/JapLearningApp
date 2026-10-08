@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminUsers } from "@/components/admin/AdminUsers";
 import { requireAdmin } from "@/lib/auth/guard";
@@ -25,8 +26,14 @@ export default async function AdminPage() {
         </h1>
         <p className="mt-2 max-w-lg text-sm text-sumi-soft">
           Signed in as {admin.email}. Disable, delete, or reset passwords for
-          student accounts.
+          student accounts, and edit lesson content.
         </p>
+        <Link
+          href="/admin/lessons"
+          className="mt-4 inline-flex items-center gap-2 border border-ai px-4 py-2 text-sm font-medium text-ai transition-colors hover:bg-ai hover:text-paper"
+        >
+          教材 Manage lessons →
+        </Link>
       </header>
 
       <AdminUsers selfId={admin.id} />

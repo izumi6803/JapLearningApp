@@ -72,9 +72,9 @@ export function toAdminUser(user: User): AdminUser {
   };
 }
 
-const usePg = Boolean(databaseUrl);
+export const usePg = Boolean(databaseUrl);
 
-function assertBackend() {
+export function assertBackend() {
   if (!usePg && isProduction) {
     throw new Error(
       "DATABASE_URL is required in production. Point it at Postgres (Neon, Supabase, Railway, …).",
@@ -126,7 +126,7 @@ function mapRow(row: Row): User {
   };
 }
 
-function pool(): Pool {
+export function pool(): Pool {
   if (!globalPg.__nihongoPool) {
     const local = /localhost|127\.0\.0\.1/.test(databaseUrl);
     globalPg.__nihongoPool = new Pool({
@@ -138,7 +138,7 @@ function pool(): Pool {
   return globalPg.__nihongoPool;
 }
 
-function ensureSchema(): Promise<void> {
+export function ensureSchema(): Promise<void> {
   if (!globalPg.__nihongoSchemaReady) {
     const statements = [
       `CREATE TABLE IF NOT EXISTS users (
@@ -168,6 +168,16 @@ function ensureSchema(): Promise<void> {
          used BOOLEAN NOT NULL DEFAULT false,
          created_at TIMESTAMPTZ NOT NULL DEFAULT now()
        )`,
+      `CREATE TABLE IF NOT EXISTS lessons (
+         id TEXT PRIMARY KEY,
+         level TEXT NOT NULL,
+         number INTEGER NOT NULL,
+         title TEXT NOT NULL,
+         title_en TEXT NOT NULL,
+         source TEXT NOT NULL,
+         data JSONB NOT NULL,
+         updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+       )`,
     ];
     globalPg.__nihongoSchemaReady = (async () => {
       for (const sql of statements) await pool().query(sql);
@@ -180,23 +190,24 @@ function ensureSchema(): Promise<void> {
  * File backend (local development only)
  * ------------------------------------------------------------------ */
 
-const DATA_DIR = path.join(process.cwd(), ".data");
-const USERS_FILE = path.join(DATA_DIR, "users.json");
-const PROGRESS_FILE = path.join(DATA_DIR, "progress.json");
-const RESETS_FILE = path.join(DATA_DIR, "resets.json");
+export const DATA_DIR = path.join(process.cwd(), ".data");
+export const USERS_FILE = path.join(DATA_DIR, "users.json");
+export const PROGRESS_FILE = path.join(DATA_DIR, "progress.json");
+export const RESETS_FILE = path.join(DATA_DIR, "resets.json");
+export const LESSONS_FILE = path.join(DATA_DIR, "lessons.json");
 
 const globalFile = globalThis as unknown as {
   __nihongoFileQueue?: Promise<unknown>;
 };
 
-function withFileLock<T>(fn: () => Promise<T>): Promise<T> {
+export function withFileLock<T>(fn: () => Promise<T>): Promise<T> {
   const prev = globalFile.__nihongoFileQueue ?? Promise.resolve();
   const next = prev.then(fn, fn);
   globalFile.__nihongoFileQueue = next.catch(() => undefined);
   return next;
 }
 
-async function readJson<T>(file: string, fallback: T): Promise<T> {
+export async function readJson<T>(file: string, fallback: T): Promise<T> {
   try {
     return JSON.parse(await fs.readFile(file, "utf8")) as T;
   } catch {
@@ -204,7 +215,7 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
   }
 }
 
-async function writeJson(file: string, data: unknown): Promise<void> {
+export async function writeJson(file: string, data: unknown): Promise<void> {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(file, JSON.stringify(data, null, 2), "utf8");
 }

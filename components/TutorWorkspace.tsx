@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import type { Lesson } from "@/lib/types";
 import { Conversation } from "./Conversation";
 import { TutorChat } from "./TutorChat";
 
 type Mode = "tutor" | "conversation";
 
-export function TutorWorkspace({ initialMode = "tutor" }: { initialMode?: Mode }) {
+export function TutorWorkspace({
+  lessons,
+  initialMode = "tutor",
+}: {
+  lessons: Lesson[];
+  initialMode?: Mode;
+}) {
   const [mode, setMode] = useState<Mode>(initialMode);
 
   const tabs: { id: Mode; kana: string; label: string; blurb: string }[] = [
@@ -63,7 +70,7 @@ export function TutorWorkspace({ initialMode = "tutor" }: { initialMode?: Mode }
 
       <div className="py-6">
         <div style={{ display: mode === "tutor" ? "block" : "none" }}>
-          <TutorChat />
+          <TutorChat lessons={lessons} />
         </div>
         <div style={{ display: mode === "conversation" ? "block" : "none" }}>
           <Conversation />

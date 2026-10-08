@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { TutorWorkspace } from "@/components/TutorWorkspace";
+import { getLessons } from "@/lib/lessons/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function TutorPage({
   const sp = await searchParams;
   const raw = Array.isArray(sp.mode) ? sp.mode[0] : sp.mode;
   const initialMode = raw === "conversation" ? "conversation" : "tutor";
+  const lessons = await getLessons();
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
@@ -33,7 +35,7 @@ export default async function TutorPage({
         </p>
       </header>
 
-      <TutorWorkspace initialMode={initialMode} />
+      <TutorWorkspace lessons={lessons} initialMode={initialMode} />
     </div>
   );
 }

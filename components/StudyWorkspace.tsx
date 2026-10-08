@@ -1,8 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { lessons } from "@/data";
-import { LEVEL_ORDER, levelColor, type Level, type Vocab } from "@/lib/types";
+import {
+  LEVEL_ORDER,
+  levelColor,
+  type Lesson,
+  type Level,
+  type Vocab,
+} from "@/lib/types";
 import { Flashcards } from "./Flashcards";
 import { KanjiPractice } from "./KanjiPractice";
 import { Quiz } from "./Quiz";
@@ -16,21 +21,31 @@ const MODES: { id: Mode; kana: string; label: string }[] = [
 ];
 
 export function StudyWorkspace({
+  lessons,
   initialLessonId,
   initialMode,
 }: {
+  lessons: Lesson[];
   initialLessonId?: string;
   initialMode?: Mode;
 }) {
   const [lessonId, setLessonId] = useState(
     initialLessonId && lessons.some((l) => l.id === initialLessonId)
       ? initialLessonId
-      : lessons[0].id,
+      : lessons[0]?.id ?? "",
   );
   const [mode, setMode] = useState<Mode>(initialMode ?? "flashcards");
 
-  const lesson = lessons.find((l) => l.id === lessonId)!;
-  const pool: Vocab[] = useMemo(() => lessons.flatMap((l) => l.vocab), []);
+  const lesson = lessons.find((l) => l.id === lessonId);
+  const pool: Vocab[] = useMemo(() => lessons.flatMap((l) => l.vocab), [lessons]);
+
+  if (!lesson) {
+    return (
+      <p className="border border-line bg-paper px-5 py-10 text-center text-sm text-sumi-soft">
+        No lessons are available yet.
+      </p>
+    );
+  }
 
   return (
     <div>

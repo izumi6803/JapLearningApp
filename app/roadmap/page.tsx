@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Roadmap } from "@/components/Roadmap";
+import { getLessons } from "@/lib/lessons/repository";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Roadmap",
@@ -7,7 +10,8 @@ export const metadata: Metadata = {
     "Your path from kana through the Minna no Nihongo units, N5 to N1.",
 };
 
-export default function RoadmapPage() {
+export default async function RoadmapPage() {
+  const lessons = await getLessons();
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <header className="mb-8">
@@ -23,7 +27,7 @@ export default function RoadmapPage() {
         </p>
       </header>
 
-      <Roadmap />
+      <Roadmap lessons={lessons} />
     </div>
   );
 }

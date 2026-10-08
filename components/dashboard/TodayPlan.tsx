@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import type { ComponentProps } from "react";
-import { lessons } from "@/data";
 import { useProgress } from "@/lib/progress";
 import { countDue } from "@/lib/review";
 import { computeStreak } from "@/lib/streak";
+import type { Lesson } from "@/lib/types";
 
 type Href = ComponentProps<typeof Link>["href"];
 
@@ -17,7 +17,7 @@ interface Task {
   cta: string;
 }
 
-export function TodayPlan() {
+export function TodayPlan({ lessons }: { lessons: Lesson[] }) {
   const { ready, state, isLessonComplete } = useProgress();
 
   if (!ready) {

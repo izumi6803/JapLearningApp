@@ -24,9 +24,9 @@ interface AuthContextValue {
   user: AuthUser | null;
   loading: boolean;
   refresh: () => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, password: string) => Promise<void>;
-  signInWithGoogle: (credential: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<AuthUser>;
+  signUp: (name: string, email: string, password: string) => Promise<AuthUser>;
+  signInWithGoogle: (credential: string) => Promise<AuthUser>;
   signOut: () => Promise<void>;
 }
 
@@ -83,18 +83,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    setUser((await post("/api/auth/login", { email, password })).user);
+    const { user: next } = await post("/api/auth/login", { email, password });
+    setUser(next);
+    return next;
   }, []);
 
   const signUp = useCallback(
     async (name: string, email: string, password: string) => {
-      setUser((await post("/api/auth/signup", { name, email, password })).user);
+      const { user: next } = await post("/api/auth/signup", {
+        name,
+        email,
+        password,
+      });
+      setUser(next);
+      return next;
     },
     [],
   );
 
   const signInWithGoogle = useCallback(async (credential: string) => {
-    setUser((await post("/api/auth/google", { credential })).user);
+    const { user: next } = await post("/api/auth/google", { credential });
+    setUser(next);
+    return next;
   }, []);
 
   const signOut = useCallback(async () => {

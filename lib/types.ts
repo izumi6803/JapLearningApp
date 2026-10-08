@@ -131,6 +131,38 @@ export const LEVELS: LevelMeta[] = [
 
 export const LEVEL_ORDER: Level[] = ["N5", "N4", "N3", "N2", "N1"];
 
+export function sortLessons(list: Lesson[]): Lesson[] {
+  return [...list].sort(
+    (a, b) =>
+      LEVEL_ORDER.indexOf(a.level) - LEVEL_ORDER.indexOf(b.level) ||
+      a.number - b.number,
+  );
+}
+
+export function lessonsOf(list: Lesson[], level: Level): Lesson[] {
+  return list.filter((l) => l.level === level);
+}
+
+export function countsByLevel(list: Lesson[]): Record<Level, number> {
+  return LEVEL_ORDER.reduce(
+    (acc, level) => {
+      acc[level] = list.filter((l) => l.level === level).length;
+      return acc;
+    },
+    {} as Record<Level, number>,
+  );
+}
+
+export function neighboursOf(
+  list: Lesson[],
+  id: string,
+): { prev?: Lesson; next?: Lesson } {
+  const sorted = sortLessons(list);
+  const i = sorted.findIndex((l) => l.id === id);
+  if (i === -1) return {};
+  return { prev: sorted[i - 1], next: sorted[i + 1] };
+}
+
 export function levelMeta(level: Level): LevelMeta {
   return LEVELS.find((l) => l.level === level)!;
 }

@@ -1,15 +1,11 @@
-import { lessons } from "@/data";
 import { kanaEntries } from "@/data/kana";
 import type { ProgressState } from "./progress-types";
-import type { Vocab } from "./types";
+import type { Lesson, Vocab } from "./types";
 
-const byId = new Map<string, Vocab>();
-for (const lesson of lessons) {
-  for (const v of lesson.vocab) byId.set(v.id, v);
-}
+const kanaById = new Map<string, Vocab>();
 for (const e of kanaEntries) {
   const id = `${e.script}:${e.kana}`;
-  byId.set(id, {
+  kanaById.set(id, {
     id,
     term: e.kana,
     reading: e.alt,
@@ -19,8 +15,20 @@ for (const e of kanaEntries) {
   });
 }
 
-export function resolveCard(id: string): Vocab | undefined {
-  return byId.get(id);
+function indexVocab(lessons: Lesson[]): Map<string, Vocab> {
+  const map = new Map<string, Vocab>();
+  for (const lesson of lessons) {
+    for (const v of lesson.vocab) map.set(v.id, v);
+  }
+  return map;
+}
+
+export function resolveCard(lessons: Lesson[], id: string): Vocab | undefined {
+  for (const lesson of lessons) {
+    const hit = lesson.vocab.find((v) => v.id === id);
+    if (hit) return hit;
+  }
+  return kanaById.get(id);
 }
 
 export function countDue(state: ProgressState, now = Date.now()): number {
@@ -29,20 +37,26 @@ export function countDue(state: ProgressState, now = Date.now()): number {
   return n;
 }
 
-export function dueVocab(state: ProgressState, now = Date.now()): Vocab[] {
+export function dueVocab(
+  state: ProgressState,
+  lessons: Lesson[],
+  now = Date.now(),
+): Vocab[] {
+  const index = indexVocab(lessons);
   return Object.entries(state.cards)
     .filter(([, c]) => c.due <= now)
     .sort((a, b) => a[1].due - b[1].due)
-    .map(([id]) => byId.get(id))
+    .map(([id]) => index.get(id) ?? kanaById.get(id))
     .filter((v): v is Vocab => Boolean(v))
     .slice(0, 50);
 }
 
-export function weakVocab(state: ProgressState): Vocab[] {
+export function weakVocab(state: ProgressState, lessons: Lesson[]): Vocab[] {
+  const index = indexVocab(lessons);
   return Object.entries(state.cards)
     .filter(([, c]) => c.seen >= 2 && c.box <= 1)
     .sort((a, b) => a[1].box - b[1].box || b[1].lapses - a[1].lapses)
-    .map(([id]) => byId.get(id))
+    .map(([id]) => index.get(id) ?? kanaById.get(id))
     .filter((v): v is Vocab => Boolean(v))
     .slice(0, 20);
 }
@@ -53,8 +67,14 @@ export interface ReviewDeck {
   weak: number;
 }
 
-export function reviewDeck(state: ProgressState, now = Date.now()): ReviewDeck {
-  const due = dueVocab(state, now);
-  const weak = weakVocab(state).filter((v) => !due.some((d) => d.id === v.id));
+export function reviewDeck(
+  state: ProgressState,
+  lessons: Lesson[],
+  now = Date.now(),
+): ReviewDeck {
+  const due = dueVocab(state, lessons, now);
+  const weak = weakVocab(state, lessons).filter(
+    (v) => !due.some((d) => d.id === v.id),
+  );
   return { deck: [...due, ...weak].slice(0, 40), due: due.length, weak: weak.length };
 }

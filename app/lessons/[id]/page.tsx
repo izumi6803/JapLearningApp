@@ -3,12 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LessonTabs } from "@/components/LessonTabs";
 import { LevelBadge } from "@/components/LevelBadge";
-import { getLesson, lessons, lessonNeighbours } from "@/data";
-import type { Vocab } from "@/lib/types";
+import { getLessons } from "@/lib/lessons/repository";
+import { neighboursOf, type Vocab } from "@/lib/types";
 
-export function generateStaticParams() {
-  return lessons.map((lesson) => ({ id: lesson.id }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -16,7 +14,8 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const lesson = getLesson(id);
+  const lessons = await getLessons();
+  const lesson = lessons.find((l) => l.id === id);
   if (!lesson) return { title: "Lesson not found" };
   return {
     title: `${lesson.title} — Lesson ${lesson.number}`,
@@ -30,10 +29,11 @@ export default async function LessonPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const lesson = getLesson(id);
+  const lessons = await getLessons();
+  const lesson = lessons.find((l) => l.id === id);
   if (!lesson) notFound();
 
-  const { prev, next } = lessonNeighbours(id);
+  const { prev, next } = neighboursOf(lessons, id);
   const pool: Vocab[] = lessons.flatMap((l) => l.vocab);
 
   return (

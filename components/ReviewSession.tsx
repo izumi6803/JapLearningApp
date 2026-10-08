@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { useProgress } from "@/lib/progress";
 import { reviewDeck } from "@/lib/review";
+import type { Lesson } from "@/lib/types";
 import { Flashcards } from "./Flashcards";
 import { Hanko } from "./Hanko";
 
-export function ReviewSession() {
+export function ReviewSession({ lessons }: { lessons: Lesson[] }) {
   const { ready, state } = useProgress();
 
   if (!ready) {
     return <p className="text-sm text-sumi-soft">Loading your review deck…</p>;
   }
 
-  const { deck, due, weak } = reviewDeck(state);
+  const { deck, due, weak } = reviewDeck(state, lessons);
 
   if (deck.length === 0) {
     return (
