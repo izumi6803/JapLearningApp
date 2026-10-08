@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -49,6 +50,7 @@ async function post(url: string, body?: unknown): Promise<{ user: AuthUser }> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -108,9 +110,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      /* still clear the client and send them home */
+    }
     setUser(null);
-  }, []);
+    router.push("/");
+    router.refresh();
+  }, [router]);
 
   const value = useMemo(
     () => ({ user, loading, refresh, signIn, signUp, signInWithGoogle, signOut }),
