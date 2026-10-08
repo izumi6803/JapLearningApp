@@ -1,7 +1,7 @@
-import { emailFrom, resendApiKey } from "./config";
+import { brevoApiKey, emailFrom, resendApiKey } from "./config";
 
 export function emailConfigured(): boolean {
-  return Boolean(resendApiKey);
+  return Boolean(resendApiKey || brevoApiKey);
 }
 
 interface EmailInput {
@@ -10,9 +10,15 @@ interface EmailInput {
   html: string;
 }
 
-/** Sends via Resend's REST API (no SDK). Returns false when not configured. */
-export async function sendEmail({ to, subject, html }: EmailInput): Promise<boolean> {
-  if (!resendApiKey) return false;
+function parseFrom(from: string): { email: string; name?: string } {
+  const match = from.match(/^\s*(.*?)\s*<([^>]+)>\s*$/);
+  if (match) {
+    return { name: match[1].replace(/^"|"$/g, "") || undefined, email: match[2].trim() };
+  }
+  return { email: from.trim() };
+}
+
+async function sendViaResend({ to, subject, html }: EmailInput): Promise<boolean> {
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -31,6 +37,41 @@ export async function sendEmail({ to, subject, html }: EmailInput): Promise<bool
     console.error("resend error", error);
     return false;
   }
+}
+
+async function sendViaBrevo({ to, subject, html }: EmailInput): Promise<boolean> {
+  const sender = parseFrom(emailFrom);
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": brevoApiKey,
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender,
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+    });
+    if (!res.ok) {
+      console.error("brevo failed", res.status, await res.text());
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("brevo error", error);
+    return false;
+  }
+}
+
+/** Sends via Resend or Brevo, whichever is configured. Returns false if neither. */
+export async function sendEmail(input: EmailInput): Promise<boolean> {
+  if (resendApiKey) return sendViaResend(input);
+  if (brevoApiKey) return sendViaBrevo(input);
+  return false;
 }
 
 export function digestEmailHtml(input: {

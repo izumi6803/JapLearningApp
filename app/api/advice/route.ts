@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         model: openaiModel,
         temperature: 0.6,
-        max_tokens: 240,
+        max_tokens: 800,
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: JSON.stringify(snapshot) },

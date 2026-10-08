@@ -27,7 +27,10 @@ export function isAdminEmail(email: string): boolean {
 }
 
 export const resendApiKey = process.env.RESEND_API_KEY ?? "";
-export const emailFrom = process.env.EMAIL_FROM ?? "onboarding@resend.dev";
+export const brevoApiKey = process.env.BREVO_API_KEY ?? "";
+export const emailFrom =
+  process.env.EMAIL_FROM ??
+  (brevoApiKey ? "onboarding@brevo.dev" : "onboarding@resend.dev");
 
 export const openaiApiKey = process.env.OPENAI_API_KEY ?? "";
 export const openaiBaseUrl =
