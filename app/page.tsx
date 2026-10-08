@@ -79,6 +79,12 @@ export default function Home() {
               >
                 Browse all {totals.lessons} units
               </Link>
+              <Link
+                href="/tutor"
+                className="inline-flex items-center gap-2 border border-ai px-5 py-2.5 text-sm font-medium text-ai transition-colors hover:bg-ai hover:text-paper"
+              >
+                Ask the AI tutor
+              </Link>
             </div>
 
             <p className="mt-4 text-sm text-sumi-soft">

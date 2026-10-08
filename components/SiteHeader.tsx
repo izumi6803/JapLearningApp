@@ -10,6 +10,7 @@ const NAV = [
   { href: "/review", label: "Review", kana: "復習" },
   { href: "/roadmap", label: "Roadmap", kana: "計画" },
   { href: "/study", label: "Study", kana: "練習" },
+  { href: "/tutor", label: "Tutor", kana: "先生" },
   { href: "/progress", label: "Progress", kana: "進捗" },
 ] as const;
 
