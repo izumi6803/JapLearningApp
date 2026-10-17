@@ -30,6 +30,7 @@ export async function requireAdmin(): Promise<User | null> {
  * instead of seeing the learning experience.
  */
 export async function redirectAdminToConsole(): Promise<void> {
-  const user = await currentUser();
-  if (user?.role === "admin") redirect("/admin");
+  // Session-only (JWT) check on purpose: no database round trip on every page.
+  const session = await getCurrentUser();
+  if (session?.role === "admin") redirect("/admin");
 }

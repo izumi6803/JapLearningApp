@@ -1,3 +1,4 @@
+import { unstable_cache, revalidateTag } from "next/cache";
 import { cache } from "react";
 import { lessonSeeds } from "@/data/seeds";
 import {
@@ -107,7 +108,12 @@ async function loadLessons(): Promise<Lesson[]> {
   return sortLessons(stored.map(hydrateLesson));
 }
 
-export const getLessons = cache(loadLessons);
+const cachedLessons = unstable_cache(loadLessons, ["lessons"], {
+  tags: ["lessons"],
+  revalidate: 3600,
+});
+
+export const getLessons = cache(cachedLessons);
 
 export const getLesson = cache(
   async (id: string): Promise<Lesson | undefined> => {
@@ -151,5 +157,6 @@ export async function updateLesson(
     });
   }
 
+  revalidateTag("lessons", "max");
   return hydrateLesson(clean);
 }

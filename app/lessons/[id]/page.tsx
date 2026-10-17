@@ -36,7 +36,16 @@ export default async function LessonPage({
   if (!lesson) notFound();
 
   const { prev, next } = neighboursOf(lessons, id);
-  const pool: Vocab[] = lessons.flatMap((l) => l.vocab);
+  // Only what the quiz needs for distractors — keeps the RSC payload small.
+  const pool: Vocab[] = lessons.flatMap((l) =>
+    l.vocab.map((v) => ({
+      id: v.id,
+      term: v.term,
+      reading: v.reading,
+      romaji: "",
+      meaning: v.meaning,
+    })),
+  );
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
