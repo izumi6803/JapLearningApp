@@ -3,11 +3,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LessonTabs } from "@/components/LessonTabs";
 import { LevelBadge } from "@/components/LevelBadge";
-import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 import { neighboursOf, type Vocab } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const lessons = await getLessons();
+  return lessons.map((lesson) => ({ id: lesson.id }));
+}
 
 export async function generateMetadata({
   params,
@@ -29,7 +33,6 @@ export default async function LessonPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await redirectAdminToConsole();
   const { id } = await params;
   const lessons = await getLessons();
   const lesson = lessons.find((l) => l.id === id);

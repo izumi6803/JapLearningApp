@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { AuthScreen } from "@/components/auth/AuthScreen";
-import { redirectAdminToConsole } from "@/lib/auth/guard";
 
 export const metadata: Metadata = {
   title: "Sign in",
@@ -12,7 +11,6 @@ export default async function SignInPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await redirectAdminToConsole();
   const sp = await searchParams;
   const next = Array.isArray(sp.next) ? sp.next[0] : sp.next;
   return (

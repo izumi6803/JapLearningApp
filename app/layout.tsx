@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AdminRedirect } from "@/components/auth/AdminRedirect";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ProgressSync } from "@/components/ProgressSync";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="flex min-h-full flex-col">
         <AuthProvider>
+          <AdminRedirect />
           <ProgressSync />
           <SiteHeader />
           <main className="flex-1">{children}</main>

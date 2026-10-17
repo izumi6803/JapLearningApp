@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LessonCard } from "@/components/LessonCard";
 import { LevelBadge } from "@/components/LevelBadge";
-import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 import { LEVELS, LEVEL_ORDER, lessonsOf, levelColor, type Level } from "@/lib/types";
 
@@ -23,7 +22,6 @@ export default async function LessonsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await redirectAdminToConsole();
   const sp = await searchParams;
   const active = asLevel(sp.level);
   const lessons = await getLessons();

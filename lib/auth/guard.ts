@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { isAdminEmail } from "./config";
 import { findUserById, setUserRole, type User } from "./repository";
 import { getCurrentUser } from "./session";
@@ -25,12 +24,3 @@ export async function requireAdmin(): Promise<User | null> {
   return user && user.role === "admin" ? user : null;
 }
 
-/**
- * Student-facing pages call this so administrators stay in the console
- * instead of seeing the learning experience.
- */
-export async function redirectAdminToConsole(): Promise<void> {
-  // Session-only (JWT) check on purpose: no database round trip on every page.
-  const session = await getCurrentUser();
-  if (session?.role === "admin") redirect("/admin");
-}

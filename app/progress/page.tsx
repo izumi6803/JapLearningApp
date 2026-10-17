@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { ProgressDashboard } from "@/components/ProgressDashboard";
-import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Progress",
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ProgressPage() {
-  await redirectAdminToConsole();
   const lessons = await getLessons();
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">

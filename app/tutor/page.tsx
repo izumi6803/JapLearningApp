@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { TutorWorkspace } from "@/components/TutorWorkspace";
-import { redirectAdminToConsole } from "@/lib/auth/guard";
 import { getLessons } from "@/lib/lessons/repository";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +15,6 @@ export default async function TutorPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await redirectAdminToConsole();
   const sp = await searchParams;
   const raw = Array.isArray(sp.mode) ? sp.mode[0] : sp.mode;
   const initialMode = raw === "conversation" ? "conversation" : "tutor";
