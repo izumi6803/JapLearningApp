@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AdminRedirect } from "@/components/auth/AdminRedirect";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -8,6 +8,13 @@ import { SiteHeader } from "@/components/SiteHeader";
 
 const GOOGLE_FONTS =
   "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f3efe4",
+};
 
 export const metadata: Metadata = {
   title: {

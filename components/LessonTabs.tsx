@@ -61,7 +61,7 @@ export function LessonTabs({
       <div
         role="tablist"
         aria-label="Lesson sections"
-        className="mt-6 flex gap-1 overflow-x-auto border-b border-line"
+        className="-mx-4 mt-6 flex gap-1 overflow-x-auto border-b border-line px-4 sm:mx-0 sm:px-0"
       >
         {tabs.map((t) => {
           const active = tab === t.id;

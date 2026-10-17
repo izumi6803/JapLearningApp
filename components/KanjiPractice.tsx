@@ -69,18 +69,15 @@ export function KanjiPractice({ items }: { items: Kanji[] }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[auto_1fr]">
-      <div className="justify-self-center">
-        <div
-          className="relative border border-line bg-paper"
-          style={{ width: SIZE, height: SIZE, maxWidth: "80vw" }}
-        >
+      <div className="mx-auto w-full max-w-[280px] lg:justify-self-center">
+        <div className="relative aspect-square w-full border border-line bg-paper">
           <span
             aria-hidden="true"
             className="genko-cell pointer-events-none absolute inset-0 grid place-items-center border-0"
             style={{ aspectRatio: "auto" }}
           >
             <span
-              className="font-display text-[12rem] leading-none"
+              className="font-display text-[clamp(6rem,42vw,12rem)] leading-none"
               style={{
                 color: "rgba(26,27,30,0.10)",
                 WebkitTextStroke: "1px rgba(26,27,30,0.16)",
@@ -105,7 +102,7 @@ export function KanjiPractice({ items }: { items: Kanji[] }) {
           />
         </div>
 
-        <div className="mt-3 flex items-center justify-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
           <button
             type="button"
             onClick={() => setIndex((i) => Math.max(0, i - 1))}

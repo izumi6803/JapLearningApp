@@ -182,21 +182,21 @@ export function Flashcards({ cards }: { cards: Vocab[] }) {
         </button>
       </div>
 
-      <div className="mt-5 flex items-center justify-center gap-3">
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
         <span onClick={(e) => e.stopPropagation()}>
           <SpeakButton text={current.term} />
         </span>
         <button
           type="button"
           onClick={() => grade(false)}
-          className="min-w-[7rem] border border-shu px-5 py-2.5 text-sm font-medium text-shu transition-colors hover:bg-shu hover:text-paper"
+          className="min-w-[8rem] flex-1 border border-shu px-4 py-3 text-sm font-medium text-shu transition-colors hover:bg-shu hover:text-paper sm:flex-none sm:px-5 sm:py-2.5"
         >
           もう一度 <span className="font-mono text-[10px]">←</span>
         </button>
         <button
           type="button"
           onClick={() => grade(true)}
-          className="min-w-[7rem] border border-matcha px-5 py-2.5 text-sm font-medium text-matcha transition-colors hover:bg-matcha hover:text-paper"
+          className="min-w-[8rem] flex-1 border border-matcha px-4 py-3 text-sm font-medium text-matcha transition-colors hover:bg-matcha hover:text-paper sm:flex-none sm:px-5 sm:py-2.5"
         >
           わかった <span className="font-mono text-[10px]">→</span>
         </button>

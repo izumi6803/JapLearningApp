@@ -38,16 +38,16 @@ export function KanaChart({ script }: { script: KanaScript }) {
             <div
               className="grid gap-px overflow-hidden border border-line bg-line"
               style={{
-                gridTemplateColumns: `5.5rem repeat(${group.columns}, minmax(0, 1fr))`,
+                gridTemplateColumns: `3.5rem repeat(${group.columns}, minmax(0, 1fr))`,
               }}
             >
               {group.rows.map((row) => (
                 <Fragment key={row.id}>
-                  <div className="flex flex-col justify-center bg-washi px-2 py-3">
-                    <span className="font-display text-sm text-sumi">
+                  <div className="flex flex-col justify-center bg-washi px-1.5 py-2 sm:px-2 sm:py-3">
+                    <span className="font-display text-xs text-sumi sm:text-sm">
                       {row.label}
                     </span>
-                    <span className="font-mono text-[10px] text-sumi-soft">
+                    <span className="font-mono text-[9px] text-sumi-soft sm:text-[10px]">
                       {row.romaji}
                     </span>
                   </div>
@@ -59,9 +59,9 @@ export function KanaChart({ script }: { script: KanaScript }) {
                         type="button"
                         title={`${script === "hiragana" ? c.h : c.k} · ${c.r}`}
                         onClick={() => speakJa(script === "hiragana" ? c.h : c.k)}
-                        className="group flex min-h-[4.25rem] flex-col items-center justify-center bg-paper px-1 py-3 transition-colors hover:bg-washi active:bg-paper-deep"
+                        className="group flex min-h-[3.25rem] flex-col items-center justify-center bg-paper px-1 py-2 transition-colors hover:bg-washi active:bg-paper-deep sm:min-h-[4.25rem] sm:py-3"
                       >
-                        <span className="font-display text-3xl leading-none text-sumi transition-colors group-hover:text-ai">
+                        <span className="font-display text-2xl leading-none text-sumi transition-colors group-hover:text-ai sm:text-3xl">
                           {script === "hiragana" ? c.h : c.k}
                         </span>
                         <span
@@ -76,7 +76,7 @@ export function KanaChart({ script }: { script: KanaScript }) {
                       <span
                         key={`${row.id}-${i}`}
                         aria-hidden="true"
-                        className="min-h-[4.25rem] bg-paper-deep/40"
+                        className="min-h-[3.25rem] bg-paper-deep/40 sm:min-h-[4.25rem]"
                       />
                     ),
                   )}

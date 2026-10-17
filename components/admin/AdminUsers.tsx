@@ -148,7 +148,7 @@ export function AdminUsers({ selfId }: { selfId: string }) {
         </div>
       ) : null}
 
-      <div className="mt-4 overflow-x-auto">
+      <div className="-mx-4 mt-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <table className="w-full min-w-[46rem] border-collapse text-sm">
           <thead>
             <tr className="border-b border-line text-left font-mono text-[10px] uppercase tracking-[0.16em] text-sumi-soft">
