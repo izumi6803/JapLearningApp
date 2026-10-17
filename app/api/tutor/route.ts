@@ -1,5 +1,5 @@
 import { getScenario } from "@/data/scenarios";
-import { openaiApiKey, openaiBaseUrl, openaiModel } from "@/lib/auth/config";
+import { aiChat, aiConfigured } from "@/lib/ai";
 import { currentUser } from "@/lib/auth/guard";
 import { json, sameOrigin } from "@/lib/auth/http";
 import { getLesson } from "@/lib/lessons/repository";
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
   if (!sameOrigin(request)) return json({ error: "bad_origin" }, 403);
   const user = await currentUser();
   if (!user) return json({ error: "unauthorized" }, 401);
-  if (!openaiApiKey) return json({ error: "ai_not_configured" }, 503);
+  if (!aiConfigured()) return json({ error: "ai_not_configured" }, 503);
 
   const now = Date.now();
   if (now - (throttle.get(user.id) ?? 0) < THROTTLE_MS) {
@@ -119,31 +119,13 @@ export async function POST(request: Request) {
   throttle.set(user.id, now);
 
   try {
-    const res = await fetch(`${openaiBaseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${openaiApiKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: openaiModel,
-        temperature: 0.7,
-        max_tokens: 800,
-        messages: [
-          {
-            role: "system",
-            content: await buildSystem(mode, lessonId, scenarioId),
-          },
-          ...messages,
-        ],
-      }),
-    });
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const content = data.choices?.[0]?.message?.content?.trim();
-    if (!content) throw new Error("empty completion");
+    const content = await aiChat(
+      [
+        { role: "system", content: await buildSystem(mode, lessonId, scenarioId) },
+        ...messages,
+      ],
+      { session: `jl-${user.id}-${mode}-${scenarioId || lessonId || "free"}`, maxTokens: 900 },
+    );
 
     return json({
       reply: content,

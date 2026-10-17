@@ -1,5 +1,5 @@
+import { aiChat, aiConfigured } from "@/lib/ai";
 import { currentUser } from "@/lib/auth/guard";
-import { openaiApiKey, openaiBaseUrl, openaiModel } from "@/lib/auth/config";
 import { json, sameOrigin } from "@/lib/auth/http";
 import { buildSnapshot, ruleAdvice } from "@/lib/insights";
 import { getLessons } from "@/lib/lessons/repository";
@@ -25,33 +25,18 @@ export async function POST(request: Request) {
   const lessons = await getLessons();
   const snapshot = buildSnapshot(sanitizeProgress(body.progress), lessons);
 
-  if (!openaiApiKey) {
+  if (!aiConfigured()) {
     return json({ advice: ruleAdvice(snapshot), source: "rules", snapshot });
   }
 
   try {
-    const res = await fetch(`${openaiBaseUrl}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${openaiApiKey}`,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: openaiModel,
-        temperature: 0.6,
-        max_tokens: 800,
-        messages: [
-          { role: "system", content: SYSTEM },
-          { role: "user", content: JSON.stringify(snapshot) },
-        ],
-      }),
-    });
-    if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const advice = data.choices?.[0]?.message?.content?.trim();
-    if (!advice) throw new Error("empty completion");
+    const advice = await aiChat(
+      [
+        { role: "system", content: SYSTEM },
+        { role: "user", content: JSON.stringify(snapshot) },
+      ],
+      { session: `jl-${user.id}-advice`, temperature: 0.6, maxTokens: 900 },
+    );
     return json({ advice, source: "llm", snapshot });
   } catch (error) {
     console.error("advice failed", error);
