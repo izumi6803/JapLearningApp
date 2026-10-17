@@ -25,7 +25,7 @@ export default async function TutorPage() {
         </h1>
         <p className="mt-2 max-w-xl text-sm text-sumi-soft">
           Ask questions about grammar and vocabulary, or practise a real
-          conversation out loud. Powered by Groq.
+          conversation out loud. Powered by DeepSeek V4.1 Flash.
         </p>
       </header>
 
