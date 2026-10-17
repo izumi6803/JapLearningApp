@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { TutorWorkspace } from "@/components/TutorWorkspace";
 import { getLessons } from "@/lib/lessons/repository";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "AI Tutor",
@@ -10,14 +11,7 @@ export const metadata: Metadata = {
     "Ask an AI Japanese tutor anything, or roleplay real conversations by voice with corrections.",
 };
 
-export default async function TutorPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  const raw = Array.isArray(sp.mode) ? sp.mode[0] : sp.mode;
-  const initialMode = raw === "conversation" ? "conversation" : "tutor";
+export default async function TutorPage() {
   const lessons = await getLessons();
 
   return (
@@ -35,7 +29,13 @@ export default async function TutorPage({
         </p>
       </header>
 
-      <TutorWorkspace lessons={lessons} initialMode={initialMode} />
+      <Suspense
+        fallback={
+          <div className="h-64 animate-pulse border border-line bg-paper" />
+        }
+      >
+        <TutorWorkspace lessons={lessons} />
+      </Suspense>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   LEVEL_ORDER,
@@ -29,12 +30,15 @@ export function StudyWorkspace({
   initialLessonId?: string;
   initialMode?: Mode;
 }) {
-  const [lessonId, setLessonId] = useState(
-    initialLessonId && lessons.some((l) => l.id === initialLessonId)
-      ? initialLessonId
-      : lessons[0]?.id ?? "",
-  );
-  const [mode, setMode] = useState<Mode>(initialMode ?? "flashcards");
+  const params = useSearchParams();
+  const [lessonId, setLessonId] = useState(() => {
+    const want = initialLessonId ?? params.get("lesson") ?? "";
+    return lessons.some((l) => l.id === want) ? want : lessons[0]?.id ?? "";
+  });
+  const [mode, setMode] = useState<Mode>(() => {
+    const raw = initialMode ?? params.get("mode");
+    return raw === "kanji" || raw === "quiz" ? raw : "flashcards";
+  });
 
   const lesson = lessons.find((l) => l.id === lessonId);
   const pool: Vocab[] = useMemo(() => lessons.flatMap((l) => l.vocab), [lessons]);

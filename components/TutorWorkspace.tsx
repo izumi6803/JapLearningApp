@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import type { Lesson } from "@/lib/types";
 import { Conversation } from "./Conversation";
@@ -14,7 +15,11 @@ export function TutorWorkspace({
   lessons: Lesson[];
   initialMode?: Mode;
 }) {
-  const [mode, setMode] = useState<Mode>(initialMode);
+  const params = useSearchParams();
+  const [mode, setMode] = useState<Mode>(() => {
+    const raw = params.get("mode") ?? initialMode;
+    return raw === "conversation" ? "conversation" : "tutor";
+  });
 
   const tabs: { id: Mode; kana: string; label: string; blurb: string }[] = [
     {

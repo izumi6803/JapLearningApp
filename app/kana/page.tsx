@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { KanaWorkspace } from "@/components/KanaWorkspace";
-import type { KanaScript } from "@/data/kana";
 
 export const metadata: Metadata = {
   title: "Hiragana & Katakana",
@@ -8,16 +8,7 @@ export const metadata: Metadata = {
     "Learn the full hiragana and katakana syllabary — seion, dakuon, handakuon and yōon — with audio, flashcards and quizzes.",
 };
 
-export default async function KanaPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  const raw = Array.isArray(sp.script) ? sp.script[0] : sp.script;
-  const initialScript: KanaScript =
-    raw === "katakana" ? "katakana" : "hiragana";
-
+export default function KanaPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <header className="mb-8">
@@ -33,7 +24,13 @@ export default async function KanaPage({
         </p>
       </header>
 
-      <KanaWorkspace initialScript={initialScript} />
+      <Suspense
+        fallback={
+          <div className="h-64 animate-pulse border border-line bg-paper" />
+        }
+      >
+        <KanaWorkspace />
+      </Suspense>
     </div>
   );
 }

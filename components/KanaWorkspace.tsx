@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { kanaOf, type KanaEntry, type KanaScript } from "@/data/kana";
 import type { Vocab } from "@/lib/types";
@@ -31,7 +32,14 @@ export function KanaWorkspace({
 }: {
   initialScript?: KanaScript;
 }) {
-  const [script, setScript] = useState<KanaScript>(initialScript);
+  const params = useSearchParams();
+  const [script, setScript] = useState<KanaScript>(() =>
+    params.get("script") === "katakana"
+      ? "katakana"
+      : params.get("script") === "hiragana"
+        ? "hiragana"
+        : initialScript,
+  );
   const [mode, setMode] = useState<Mode>("chart");
 
   const entries = kanaOf(script);

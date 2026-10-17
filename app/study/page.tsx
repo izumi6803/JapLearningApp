@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { StudyWorkspace } from "@/components/StudyWorkspace";
 import { getLessons } from "@/lib/lessons/repository";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Study",
@@ -8,21 +11,7 @@ export const metadata: Metadata = {
     "Drill vocabulary with flashcards, trace kanji, and take quizzes for any Minna no Nihongo unit.",
 };
 
-type Mode = "flashcards" | "kanji" | "quiz";
-
-function pick<T extends string>(value: string | string[] | undefined, allowed: T[]) {
-  const v = Array.isArray(value) ? value[0] : value;
-  return v && (allowed as string[]).includes(v) ? (v as T) : undefined;
-}
-
-export default async function StudyPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  const initialLessonId = Array.isArray(sp.lesson) ? sp.lesson[0] : sp.lesson;
-  const initialMode = pick<Mode>(sp.mode, ["flashcards", "kanji", "quiz"]);
+export default async function StudyPage() {
   const lessons = await getLessons();
 
   return (
@@ -40,11 +29,13 @@ export default async function StudyPage({
         </p>
       </header>
 
-      <StudyWorkspace
-        lessons={lessons}
-        initialLessonId={initialLessonId}
-        initialMode={initialMode}
-      />
+      <Suspense
+        fallback={
+          <div className="h-64 animate-pulse border border-line bg-paper" />
+        }
+      >
+        <StudyWorkspace lessons={lessons} />
+      </Suspense>
     </div>
   );
 }
