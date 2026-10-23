@@ -5,9 +5,19 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +38,10 @@ jobs:
       - name: Unit tests
         run: npm test
 
+      # The app falls back to seed lessons when no DATABASE_URL is set,
+      # so the build works in CI without a database.
       - name: Production build
         run: npm run build
         env:
           AUTH_SECRET: ci-build-only-secret
+          APP_URL: https://japlearning-lyart.vercel.app
