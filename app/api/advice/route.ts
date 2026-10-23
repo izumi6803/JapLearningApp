@@ -1,6 +1,8 @@
 import { aiChat, aiConfigured } from "@/lib/ai";
+import { aiDailyLimit } from "@/lib/auth/config";
 import { currentUser } from "@/lib/auth/guard";
 import { json, sameOrigin } from "@/lib/auth/http";
+import { consumeAiQuota } from "@/lib/auth/repository";
 import { buildSnapshot, ruleAdvice } from "@/lib/insights";
 import { getLessons } from "@/lib/lessons/repository";
 import { sanitizeProgress } from "@/lib/progress-types";
@@ -26,6 +28,11 @@ export async function POST(request: Request) {
   const snapshot = buildSnapshot(sanitizeProgress(body.progress), lessons);
 
   if (!aiConfigured()) {
+    return json({ advice: ruleAdvice(snapshot), source: "rules", snapshot });
+  }
+
+  const allowed = await consumeAiQuota(user.id, aiDailyLimit);
+  if (!allowed) {
     return json({ advice: ruleAdvice(snapshot), source: "rules", snapshot });
   }
 

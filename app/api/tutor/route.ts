@@ -1,7 +1,9 @@
 import { getScenario } from "@/data/scenarios";
 import { aiChat, aiConfigured } from "@/lib/ai";
+import { aiDailyLimit } from "@/lib/auth/config";
 import { currentUser } from "@/lib/auth/guard";
 import { json, sameOrigin } from "@/lib/auth/http";
+import { consumeAiQuota } from "@/lib/auth/repository";
 import { getLesson } from "@/lib/lessons/repository";
 
 export const runtime = "nodejs";
@@ -117,6 +119,9 @@ export async function POST(request: Request) {
   if (messages.length === 0) return json({ error: "empty" }, 400);
 
   throttle.set(user.id, now);
+
+  const allowed = await consumeAiQuota(user.id, aiDailyLimit);
+  if (!allowed) return json({ error: "quota_exceeded" }, 429);
 
   try {
     const content = await aiChat(

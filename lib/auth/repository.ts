@@ -178,6 +178,12 @@ export function ensureSchema(): Promise<void> {
          data JSONB NOT NULL,
          updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
        )`,
+      `CREATE TABLE IF NOT EXISTS ai_usage (
+         user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+         day TEXT NOT NULL,
+         count INTEGER NOT NULL DEFAULT 0,
+         PRIMARY KEY (user_id, day)
+       )`,
     ];
     globalPg.__nihongoSchemaReady = (async () => {
       for (const sql of statements) await pool().query(sql);
@@ -195,6 +201,7 @@ export const USERS_FILE = path.join(DATA_DIR, "users.json");
 export const PROGRESS_FILE = path.join(DATA_DIR, "progress.json");
 export const RESETS_FILE = path.join(DATA_DIR, "resets.json");
 export const LESSONS_FILE = path.join(DATA_DIR, "lessons.json");
+export const AI_USAGE_FILE = path.join(DATA_DIR, "ai-usage.json");
 
 const globalFile = globalThis as unknown as {
   __nihongoFileQueue?: Promise<unknown>;
@@ -570,4 +577,46 @@ export async function consumePasswordReset(
     }
   });
   return userId;
+}
+
+/* ------------------------------------------------------------------ *
+ * AI usage quota (per user per UTC day)
+ * ------------------------------------------------------------------ */
+
+export async function consumeAiQuota(
+  userId: string,
+  limit: number,
+): Promise<boolean> {
+  if (limit <= 0) return true;
+  assertBackend();
+  const day = new Date().toISOString().slice(0, 10);
+
+  if (usePg) {
+    await ensureSchema();
+    await pool().query(
+      "DELETE FROM ai_usage WHERE user_id = $1 AND day < $2",
+      [userId, day],
+    );
+    const res = await pool().query<{ count: number }>(
+      `INSERT INTO ai_usage (user_id, day, count) VALUES ($1, $2, 1)
+       ON CONFLICT (user_id, day)
+       DO UPDATE SET count = ai_usage.count + 1 WHERE ai_usage.count < $3
+       RETURNING count`,
+      [userId, day, limit],
+    );
+    return (res.rowCount ?? 0) > 0;
+  }
+
+  let allowed = false;
+  await withFileLock(async () => {
+    const all = await readJson<Record<string, number>>(AI_USAGE_FILE, {});
+    const key = `${userId}:${day}`;
+    const current = all[key] ?? 0;
+    if (current < limit) {
+      all[key] = current + 1;
+      allowed = true;
+      await writeJson(AI_USAGE_FILE, all);
+    }
+  });
+  return allowed;
 }

@@ -76,9 +76,11 @@ export function Conversation({ initialScenarioId }: { initialScenarioId?: string
       setError(
         code === "ai_not_configured"
           ? "Conversation isn’t configured yet."
-          : code === "slow_down"
-            ? "One moment — try again."
-            : "No reply just now. Try again.",
+          : code === "quota_exceeded"
+            ? "You’ve reached today’s AI limit. Try again tomorrow."
+            : code === "slow_down"
+              ? "One moment — try again."
+              : "No reply just now. Try again.",
       );
     } finally {
       setBusy(false);

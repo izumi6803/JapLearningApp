@@ -39,6 +39,9 @@ export const openaiModel = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
 
 export const cronSecret = process.env.CRON_SECRET ?? "";
 
+/** Max AI (LLM) calls per user per UTC day. 0 disables the cap. */
+export const aiDailyLimit = Number(process.env.AI_DAILY_LIMIT ?? "80");
+
 export const appUrl =
   process.env.APP_URL ??
   (process.env.VERCEL_URL

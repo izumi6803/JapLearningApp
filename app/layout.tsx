@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { appUrl } from "@/lib/auth/config";
 import "./globals.css";
 import { AdminRedirect } from "@/components/auth/AdminRedirect";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -16,13 +17,29 @@ export const viewport: Viewport = {
   themeColor: "#f3efe4",
 };
 
+const DESCRIPTION =
+  "Master Japanese with the Minna no Nihongo series: kana, vocabulary flashcards, grammar notes, kanji practice, review and quizzes across N5–N1.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
+  applicationName: "みんなの日本語",
   title: {
     default: "みんなの日本語 — Minna no Nihongo Study Companion",
     template: "%s · みんなの日本語",
   },
-  description:
-    "Master Japanese with the Minna no Nihongo series: vocabulary flashcards, grammar notes, kanji practice and quizzes across N5–N1.",
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "みんなの日本語 — Minna no Nihongo Study Companion",
+    title: "みんなの日本語 — Minna no Nihongo Study Companion",
+    description: DESCRIPTION,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "みんなの日本語 — Minna no Nihongo Study Companion",
+    description: DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

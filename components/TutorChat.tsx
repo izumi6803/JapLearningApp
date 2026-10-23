@@ -59,9 +59,11 @@ export function TutorChat({ lessons }: { lessons: Lesson[] }) {
       setError(
         code === "ai_not_configured"
           ? "The AI tutor isn’t configured yet."
-          : code === "slow_down"
-            ? "One moment — try again."
-            : "The tutor couldn’t answer right now.",
+          : code === "quota_exceeded"
+            ? "You’ve reached today’s AI limit. Try again tomorrow."
+            : code === "slow_down"
+              ? "One moment — try again."
+              : "The tutor couldn’t answer right now.",
       );
     } finally {
       setBusy(false);
