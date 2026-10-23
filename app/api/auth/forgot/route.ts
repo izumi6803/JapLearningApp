@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { appUrl } from "@/lib/auth/config";
 import { emailConfigured, resetEmailHtml, sendEmail } from "@/lib/auth/email";
-import { EMAIL_RE, json, sameOrigin } from "@/lib/auth/http";
+import { EMAIL_RE, clientIp, guardRate, json, sameOrigin } from "@/lib/auth/http";
 import { createPasswordReset, findUserByEmail } from "@/lib/auth/repository";
 
 export const runtime = "nodejs";
@@ -11,6 +11,9 @@ const TTL_MS = 30 * 60 * 1000;
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return json({ error: "bad_origin" }, 403);
+
+  const limited = guardRate(`forgot:ip:${clientIp(request)}`, 5, 15 * 60_000);
+  if (limited) return limited;
 
   const body = (await request.json().catch(() => ({}))) as { email?: unknown };
   const email = typeof body.email === "string" ? body.email.trim() : "";

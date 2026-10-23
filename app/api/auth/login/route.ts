@@ -1,5 +1,5 @@
 import { SESSION_COOKIE, isAdminEmail } from "@/lib/auth/config";
-import { json, sameOrigin } from "@/lib/auth/http";
+import { clientIp, guardRate, json, sameOrigin } from "@/lib/auth/http";
 import { verifyPassword } from "@/lib/auth/password";
 import {
   findUserByEmail,
@@ -14,6 +14,9 @@ export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return json({ error: "bad_origin" }, 403);
 
+  const ipLimited = guardRate(`login:ip:${clientIp(request)}`, 12, 10 * 60_000);
+  if (ipLimited) return ipLimited;
+
   let body: { email?: unknown; password?: unknown };
   try {
     body = await request.json();
@@ -25,6 +28,9 @@ export async function POST(request: Request) {
     typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   const password = typeof body.password === "string" ? body.password : "";
   if (!email || !password) return json({ error: "invalid_credentials" }, 401);
+
+  const emailLimited = guardRate(`login:email:${email}`, 10, 10 * 60_000);
+  if (emailLimited) return emailLimited;
 
   try {
     const user = await findUserByEmail(email);

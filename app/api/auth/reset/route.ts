@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { MIN_PASSWORD, json, sameOrigin } from "@/lib/auth/http";
+import { MIN_PASSWORD, clientIp, guardRate, json, sameOrigin } from "@/lib/auth/http";
 import { hashPassword } from "@/lib/auth/password";
 import { consumePasswordReset, updatePassword } from "@/lib/auth/repository";
 
@@ -8,6 +8,9 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return json({ error: "bad_origin" }, 403);
+
+  const limited = guardRate(`reset:ip:${clientIp(request)}`, 10, 60 * 60_000);
+  if (limited) return limited;
 
   const body = (await request.json().catch(() => ({}))) as {
     token?: unknown;

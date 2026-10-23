@@ -1,5 +1,12 @@
 import { SESSION_COOKIE } from "@/lib/auth/config";
-import { EMAIL_RE, MIN_PASSWORD, json, sameOrigin } from "@/lib/auth/http";
+import {
+  EMAIL_RE,
+  MIN_PASSWORD,
+  clientIp,
+  guardRate,
+  json,
+  sameOrigin,
+} from "@/lib/auth/http";
 import { hashPassword } from "@/lib/auth/password";
 import {
   createUser,
@@ -13,6 +20,9 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return json({ error: "bad_origin" }, 403);
+
+  const limited = guardRate(`signup:ip:${clientIp(request)}`, 6, 60 * 60_000);
+  if (limited) return limited;
 
   let body: { name?: unknown; email?: unknown; password?: unknown };
   try {

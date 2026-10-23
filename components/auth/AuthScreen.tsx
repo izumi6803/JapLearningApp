@@ -20,6 +20,7 @@ const MESSAGES: Record<string, string> = {
     "This account has been disabled. Contact an administrator.",
   email_not_configured: "Email reset isn’t set up yet.",
   email_failed: "Could not send the reset email.",
+  rate_limited: "Too many attempts. Please wait a few minutes and try again.",
 };
 
 export function AuthScreen({

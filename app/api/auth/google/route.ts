@@ -1,6 +1,6 @@
 import { SESSION_COOKIE, isAdminEmail } from "@/lib/auth/config";
 import { verifyGoogleCredential } from "@/lib/auth/google";
-import { json, sameOrigin } from "@/lib/auth/http";
+import { clientIp, guardRate, json, sameOrigin } from "@/lib/auth/http";
 import {
   createUser,
   findUserByEmail,
@@ -18,6 +18,9 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return json({ error: "bad_origin" }, 403);
+
+  const limited = guardRate(`google:ip:${clientIp(request)}`, 20, 10 * 60_000);
+  if (limited) return limited;
 
   let body: { credential?: unknown };
   try {

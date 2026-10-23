@@ -89,6 +89,11 @@ async function seedPg(): Promise<void> {
 }
 
 async function loadLessons(): Promise<Lesson[]> {
+  // CI/offline builds set no database: prerender from the seed files so the
+  // build still succeeds. At runtime (any other phase) a database is required.
+  if (!usePg && process.env.NEXT_PHASE === "phase-production-build") {
+    return sortLessons(lessonSeeds.map(hydrateLesson));
+  }
   assertBackend();
   if (usePg) {
     await ensureSchema();
